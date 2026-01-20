@@ -1,20 +1,20 @@
-import axios from 'axios';
-const url = "https://jsonplaceholder.typicode.com/posts";
-const resPosts = await axios.get<Posts[]>(url);
-const posts = resPosts.data;
+import axios from "axios";
 
 interface Posts {
-  userID: number;
   id: number;
   title: string;
-  body: string;
 }
 
-export async function getPostsByUser() {
+export async function getPostsByUser(userId: number): Promise<Posts[]> {
   try {
-
-  } catch (e) {
-    
+    const response = await axios.get(
+      "https://jsonplaceholder.typicode.com/posts",
+    );
+    const posts = await response.data;
+    return posts
+      .filter((post: any) => post.userId === userId)
+      .map((post: any) => ({ id: post.id, title: post.title }));
+  } catch (error) {
+    return [];
   }
-
 }
