@@ -5,37 +5,30 @@ interface CommentCount {
   totalComments: number;
 }
 
+interface ApiComment {
+  postId: number;
+  id: number;
+  name: string;
+  email: string;
+  body: string;
+}
+
 export async function countCommentsByPost(): Promise<CommentCount[]> {
   try {
-    const res = await axios.get(
-      "https://jsonplaceholder.typicode.com/comments",
-    );
+    const res = await axios.get<ApiComment[]>("https://jsonplaceholder.typicode.com/comments");
     const comments = res.data;
 
-    const counts: Record<number, number> = {};
+    // Group and count comments by postId using reduce
+    const countMap = comments.reduce<Record<number, number>>((acc, comment) => {
+      acc[comment.postId] = (acc[comment.postId] || 0) + 1;
+      return acc;
+    }, {});
 
-    for (let i = 0; i < comments.length; i++) {
-      const comment = comments[i];
-      const id = comment.postId;
-
-      if (counts[id]) {
-        counts[id] = counts[id] + 1;
-      } else {
-        counts[id] = 1;
-      }
-    }
-
-    const finalResult: CommentCount[] = [];
-
-    for (const postId in counts) {
-      finalResult.push({
-        postId: Number(postId),
-        totalComments: counts[postId],
-      });
-    }
-
-    return finalResult;
+    // Convert to array format
+    return Object.entries(countMap).map(([postId, count]) => ({
+      postId: Number(postId),
+      totalComments: count,
+    }));
   } catch (error) {
     return [];
   }
-}
