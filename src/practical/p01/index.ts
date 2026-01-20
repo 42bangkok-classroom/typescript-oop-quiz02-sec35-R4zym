@@ -11,7 +11,7 @@ export async function getEdgePosts(): Promise<Posts[]> {
       "https://jsonplaceholder.typicode.com/posts",
     );
     const posts = await response.data;
-    return posts;
+    return posts.map((post: any) => ({ id: post.id, title: post.title }));
   } catch (error) {
     return [];
   }
