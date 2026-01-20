@@ -1,11 +1,18 @@
-export function getEdgePosts(id: number, title: string) {
-  return "id: " + id + " title: " + title;
+import axios from "axios";
+
+interface Posts {
+  id: number;
+  title: string;
 }
 
-async function getEdgePosts() {
+export async function getEdgePosts(): Promise<Posts[]> {
   try {
-    const title = await getEdgePosts()
-    cosole.log()
-  } catch (e) {
-    
+    const response = await axios.get(
+      "https://jsonplaceholder.typicode.com/posts",
+    );
+    const posts = await response.data;
+    return posts;
+  } catch (error) {
+    return [];
   }
+}
