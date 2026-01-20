@@ -1,34 +1,34 @@
 import axios from "axios";
 
-interface CommentCount {
-  postId: number;
-  totalComments: number;
-}
-
-interface ApiComment {
-  postId: number;
+interface Comment {
+  postId: number | null;
   id: number;
   name: string;
   email: string;
   body: string;
 }
 
-export async function countCommentsByPost(): Promise<CommentCount[]> {
+
+export async function countCommentsByPost(): Promise<Record<number, number>> {
   try {
-    const res = await axios.get<ApiComment[]>("https://jsonplaceholder.typicode.com/comments");
-    const comments = res.data;
+    const { data } = await axios.get<Comment[]>(
+      "https://jsonplaceholder.typicode.com/comments"
+    );
 
-    // Group and count comments by postId using reduce
-    const countMap = comments.reduce<Record<number, number>>((acc, comment) => {
-      acc[comment.postId] = (acc[comment.postId] || 0) + 1;
+    if (!Array.isArray(data) || data.length === 0) {
+      return {};
+    }
+
+    const result = data.reduce((acc, comment) => {
+      const pid = comment.postId;
+      if (pid === null || pid === undefined) return acc;
+
+      acc[pid] = (acc[pid] ?? 0) + 1;
       return acc;
-    }, {});
+    }, {} as Record<number, number>);
 
-    // Convert to array format
-    return Object.entries(countMap).map(([postId, count]) => ({
-      postId: Number(postId),
-      totalComments: count,
-    }));
-  } catch (error) {
-    return [];
+    return result;
+  } catch {
+    return {};
   }
+}
