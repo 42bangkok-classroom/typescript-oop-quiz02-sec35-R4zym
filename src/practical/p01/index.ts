@@ -11,7 +11,13 @@ export async function getEdgePosts(): Promise<Posts[]> {
       "https://jsonplaceholder.typicode.com/posts",
     );
     const posts = await response.data;
-    return posts.map((post: any) => ({ id: post.id, title: post.title }));
+    if (posts.length === 0) return [];
+    const first = posts[0];
+    const last = posts[posts.length - 1];
+    return [
+      { id: first.id, title: first.title },
+      { id: last.id, title: last.title },
+    ];
   } catch (error) {
     return [];
   }
